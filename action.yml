@@ -17,8 +17,8 @@ inputs:
     required: true
 
 runs:
-  using: node16
-  main: |
-    echo "Deploying ${{ inputs.ampersand_project }} to ${{ inputs.ampersand_server }}..."
-  post: |
-    echo "Deployed ${{ inputs.ampersand_project }} to ${{ inputs.ampersand_server }}."
+  using: "composite"
+  steps:
+    - name: Create deployment
+      run: 'gh api --method POST -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" /repos/${{ github.repository }}/deployments -f ref=''topic-branch'' -f payload=''{ "deploy": "migrate" }'''
+      shell: bash
