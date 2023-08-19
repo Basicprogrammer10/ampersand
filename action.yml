@@ -1,0 +1,20 @@
+name: Deploy with ampersand
+description: "Signals an ampersand server to deploy a new version of an application."
+
+inputs:
+  ampersand_server:
+    description: "The URL of the ampersand server."
+    required: true
+  ampersand_token:
+    description: "The token to use to authenticate with the ampersand server for this project."
+    required: true
+  ampersand_project:
+    description: "The project to deploy."
+    required: true
+
+runs:
+  using: node16
+  main: |
+    echo "Deploying ${{ inputs.ampersand_project }} to ${{ inputs.ampersand_server }}..."
+  post: |
+    echo "Deployed ${{ inputs.ampersand_project }} to ${{ inputs.ampersand_server }}."

@@ -7,6 +7,6 @@ pub struct Application {
 }
 impl Application {
     pub fn new(config: ApplicationConfig) -> Result<Self> {
-        todo!()
+        Ok(Self { config })
     }
 }
