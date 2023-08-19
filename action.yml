@@ -1,6 +1,10 @@
 name: Deploy with ampersand
 description: "Signals an ampersand server to deploy a new version of an application."
 
+branding:
+  icon: box
+  color: green
+
 inputs:
   ampersand_server:
     description: "The URL of the ampersand server."
