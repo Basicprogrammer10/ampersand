@@ -1,4 +1,5 @@
 config_path = "config"
+docker_address = "http://localhost:2375"
 
 [server]
 host = "localhost"
