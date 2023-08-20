@@ -2,7 +2,8 @@ use std::{fs, path::PathBuf};
 
 use anyhow::Result;
 use docker_api::{opts::PullOpts, Docker};
-use futures::executor::{block_on, block_on_stream};
+use futures::executor::block_on_stream;
+use tokio::runtime::Runtime;
 
 use crate::{
     application::Application,
@@ -13,6 +14,7 @@ pub struct App {
     pub config: Config,
     pub applications: Vec<Application>,
     docker: Docker,
+    runtime: Runtime,
 }
 
 impl App {
@@ -20,10 +22,15 @@ impl App {
         let config_raw = fs::read_to_string(&config_path)?;
         let config = toml::from_str::<Config>(&config_raw)?;
 
+        let runtime = tokio::runtime::Builder::new_current_thread()
+            .enable_time()
+            .enable_io()
+            .build()?;
+
         let docker = Docker::new(&config.docker_address)?;
-        if let Err(e) = block_on(docker.info()) {
-            return Err(anyhow::anyhow!("Failed to connect to docker: {}", e));
-        }
+        // if let Err(e) = runtime.block_on(docker.info()) {
+        //     return Err(anyhow::anyhow!("Failed to connect to docker: {}", e));
+        // }
 
         let mut applications = Vec::new();
         for i in fs::read_dir(&config.config_path)? {
@@ -41,6 +48,7 @@ impl App {
             config,
             applications,
             docker,
+            runtime,
         })
     }
 
@@ -63,7 +71,8 @@ impl App {
         }
 
         let images = self.docker.images();
-        let mut stream = block_on_stream(images.pull(&pull_opts.build()));
+        let pull = images.pull(&pull_opts.build());
+        let mut stream = block_on_stream(pull);
         while let Some(i) = stream.next() {
             println!("{:?}", i);
         }
